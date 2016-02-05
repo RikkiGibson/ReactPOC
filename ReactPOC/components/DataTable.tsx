@@ -3,7 +3,6 @@
 // https://github.com/Microsoft/TypeScript/wiki/JSX
 
 import * as React from "react";
-import "es5-shim";
 import "es6-shim";
 
 export interface ColumnSettings<TData> {

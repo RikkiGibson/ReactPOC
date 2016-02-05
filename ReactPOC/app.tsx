@@ -1,4 +1,5 @@
-﻿import * as React from 'react';
+﻿import "es5-shim";
+import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { testData, BusStop } from "./testData";
 import { DataTable, ColumnSettings } from "./components/DataTable";
