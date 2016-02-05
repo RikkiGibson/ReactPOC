@@ -20,6 +20,7 @@ module.exports = {
                 test: /\.tsx?$/,
                 exclude: /(node_modules|bower_components)/,
                 loaders: [
+                    'babel?presets=es2015',
                     'ts-loader'
                 ]
             }

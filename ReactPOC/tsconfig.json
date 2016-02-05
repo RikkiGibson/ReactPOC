@@ -3,6 +3,7 @@
     "./typings/tsd.d.ts"
   ],
   "compilerOptions": {
-    "jsx": "react"
+    "jsx": "react",
+    "target": "es6"
   }
 }

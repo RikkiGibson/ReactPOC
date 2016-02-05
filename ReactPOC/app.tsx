@@ -13,11 +13,23 @@ window.onload = () => {
     var settings: Array<ColumnSettings<BusStop>> = [
         {
             title: "Stop ID",
-            render: (data: BusStop) => <span>{data.id}</span>
+            render: (data: BusStop) => <span>{data.id}</span>,
+            compareFunction: (a: BusStop, b: BusStop) => a.id - b.id
         },
         {
             title: "Stop Name",
-            render: renderStopName
+            render: renderStopName,
+            compareFunction: (a: BusStop, b: BusStop) => a.name.localeCompare(b.name)
+        },
+        {
+            title: "Latitude",
+            render: (data: BusStop) => <span>{data.lat}</span>,
+            compareFunction: (a: BusStop, b: BusStop) => a.lat - b.lat
+        },
+        {
+            title: "Longitude",
+            render: (data: BusStop) => <span>{data.lng}</span>,
+            compareFunction: (a: BusStop, b: BusStop) => a.lng - b.lng
         }
     ];
     ReactDOM.render(<BusDataTable settings={settings} data={testData} />, root);
