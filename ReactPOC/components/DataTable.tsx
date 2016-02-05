@@ -56,7 +56,17 @@ export class DataTable<TData> extends React.Component<Props<TData>, State<TData>
     }
 
     private renderHeader(column: ColumnSettings<TData>): JSX.Element {
-        return <td onClick={() => this.setSortColumn(column) }>{ column.title }</td >;
+        var isSortedHeader = column == this.state.sortColumn;
+        var text: string;
+        if (isSortedHeader) {
+            var prefixSymbol = this.state.sortDirection == SortDirection.Ascending
+                ? "\u25B2"
+                : "\u25BC";
+            text = prefixSymbol + " " + column.title;
+        } else {
+            text = column.title;
+        }
+        return <td onClick={() => this.setSortColumn(column) }>{ text }</td >;
     }
 
     render() {
