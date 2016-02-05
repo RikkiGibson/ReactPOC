@@ -3,11 +3,13 @@
 // https://github.com/Microsoft/TypeScript/wiki/JSX
 
 import * as React from "react";
+import "es5-shim";
+import "es6-shim";
 
 export interface ColumnSettings<TData> {
     title: string;
     render: (data: TData) => JSX.Element;
-    compareFunction?: (a: TData, b: TData) => number
+    compareFunction?: (a: TData, b: TData) => number;
 }
 
 interface Props<TData> {
@@ -16,8 +18,7 @@ interface Props<TData> {
 }
 
 interface State<TData> {
-    sortColumn?: ColumnSettings<TData>;
-    sortDirection: SortDirection;
+    sort: Array<ColumnSortState<TData>>
 }
 
 enum SortDirection {
@@ -25,48 +26,87 @@ enum SortDirection {
     Descending = -1
 }
 
+interface ColumnSortState<TData> {
+    columnTitle: string;
+    compareFunction: (a: TData, b: TData) => number;
+    sortDirection: SortDirection;
+}
+
+// assure typescript that this method exists
+declare class Object { static assign<T>(obj: Object, other: T): T }
+
 export class DataTable<TData> extends React.Component<Props<TData>, State<TData>> {
     constructor() {
         super();
         this.state = {
-            sortColumn: null,
-            sortDirection: SortDirection.Ascending
+            sort: []
         };
     }
 
-    private sortedData(): Array<TData> {
-        const compareFunction = (a, b) => this.state.sortColumn.compareFunction(a, b) * this.state.sortDirection;
-        return this.state.sortColumn && this.state.sortColumn.compareFunction
-            ? this.props.data.slice().sort(compareFunction)
-            : this.props.data
+    compare(a: TData, b: TData): number {
+        if (this.state.sort.length == 0) {
+            return 0;
+        }
+        var comparison: number;
+        for (var sortState of this.state.sort) {
+            comparison = sortState.compareFunction(a, b) * sortState.sortDirection;
+            if (comparison !== 0) {
+                return comparison;
+            }
+        }
+        return comparison;
     }
 
-    setSortColumn(column: ColumnSettings<TData>) {
-        var sortDirection: SortDirection;
-        if (column == this.state.sortColumn) {
-            // This column is already selected, so toggle the direction
-            sortDirection = this.state.sortDirection == SortDirection.Ascending
+    private sortedData(): Array<TData> {
+        if (this.state.sort.length === 0) {
+            return this.props.data;
+        } else {
+            return this.props.data.slice().sort((a, b) => this.compare(a, b));
+        }
+    }
+
+    setSortColumn(column: ColumnSettings<TData>, multiSelect: boolean) {
+        let sortDirection: SortDirection;
+        // shallow clone of elements of sort so they can be mutated before setState()
+        let sort: Array<ColumnSortState<TData>> = this.state.sort.map(sortState => Object.assign({}, sortState));
+
+        let selectedColumn = sort.filter(sortColumn => sortColumn.columnTitle === column.title)[0];
+        if (!multiSelect) {
+            // empty the array
+            sort.length = 0;
+        }
+
+        if (selectedColumn) {
+            // This column was already selected, so toggle the direction
+            selectedColumn.sortDirection = selectedColumn.sortDirection === SortDirection.Ascending
                 ? SortDirection.Descending
                 : SortDirection.Ascending;
-        } else {
-            // Selecting a new column, so use ascending direction
-            sortDirection = SortDirection.Ascending;
+            if (sort.indexOf(selectedColumn) === -1) {
+                sort.push(selectedColumn);
+            }
+        } else if (column.compareFunction) {
+            sort.push({
+                columnTitle: column.title,
+                compareFunction: column.compareFunction,
+                sortDirection: SortDirection.Ascending
+            });
         }
-        this.setState({ sortColumn: column, sortDirection: sortDirection });
+
+        this.setState({ sort: sort });
     }
 
     private renderHeader(column: ColumnSettings<TData>): JSX.Element {
-        var isSortedHeader = column == this.state.sortColumn;
+        var sortState = this.state.sort.filter(sortState => sortState.columnTitle === column.title)[0];
         var text: string;
-        if (isSortedHeader) {
-            var prefixSymbol = this.state.sortDirection == SortDirection.Ascending
+        if (sortState) {
+            var prefixSymbol = sortState.sortDirection == SortDirection.Ascending
                 ? "\u25B2"
                 : "\u25BC";
             text = prefixSymbol + " " + column.title;
         } else {
             text = column.title;
         }
-        return <td onClick={() => this.setSortColumn(column) }>{ text }</td >;
+        return <td onClick={e => this.setSortColumn(column, e.shiftKey) }>{ text }</td >;
     }
 
     render() {
