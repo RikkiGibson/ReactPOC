@@ -2,36 +2,61 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { testData, BusStop } from "./testData";
-import { DataTable, ColumnSettings } from "./components/DataTable";
+import DataGrid = require('react-datagrid');
+import 'react-datagrid/index.css';
+import { Router, Route, Link, hashHistory } from 'react-router';
 
-function renderStopName(busStop: BusStop): JSX.Element {
-    return <span style={{ "backgroundColor": "red" }}>{busStop.name}</span>;
+class App extends React.Component<any, any> {
+    render() {
+        return <div>
+            <ul>
+                <li><Link to="/lol">Lol</Link></li>
+                <li><Link to="/bbq">BBQ</Link></li>
+            </ul>
+            {this.props.children}
+        </div>
+    }
 }
 
-class BusDataTable extends DataTable<BusStop> { }
+class MyLol extends React.Component<any, any> {
+    onColumnResize(firstCol: ReactDataGrid.Column, firstSize: number,
+            secondCol: ReactDataGrid.Column, secondSize: number) {
+        firstCol.width = firstSize;
+        this.setState({});
+    }
+
+    columns: Array<ReactDataGrid.Column> = [
+        { name: 'id', title: 'Stop ID' },
+        { name: 'name', title: 'Stop Name' },
+        { name: 'lat', title: 'Latitude' },
+        { name: 'lng', title: 'Longitude' }
+    ];
+
+    render() {
+        return <DataGrid
+            idProperty="id"
+            dataSource={testData}
+            columns={this.columns}
+            onColumnResize={this.onColumnResize.bind(this)}
+        />
+    }
+}
+
+class MyBBQ extends React.Component<any, any> {
+    render() {
+        return <span>You are at my barbecue.</span>
+    }
+}
+
 window.onload = () => {
     var root = document.getElementById('content');
-    var settings: Array<ColumnSettings<BusStop>> = [
-        {
-            title: "Stop ID",
-            render: (data: BusStop) => <span>{data.id}</span>,
-            compareFunction: (a: BusStop, b: BusStop) => a.id - b.id
-        },
-        {
-            title: "Stop Name",
-            render: renderStopName,
-            compareFunction: (a: BusStop, b: BusStop) => a.name.localeCompare(b.name)
-        },
-        {
-            title: "Latitude",
-            render: (data: BusStop) => <span>{data.lat}</span>,
-            compareFunction: (a: BusStop, b: BusStop) => a.lat - b.lat
-        },
-        {
-            title: "Longitude",
-            render: (data: BusStop) => <span>{data.lng}</span>,
-            compareFunction: (a: BusStop, b: BusStop) => a.lng - b.lng
-        }
-    ];
-    ReactDOM.render(<BusDataTable settings={settings} data={testData} />, root);
+    var routes: JSX.Element =
+        <Router history={hashHistory}>
+                <Route path="/" component={App}>
+                    <Route path="lol" component={MyLol} />
+                    <Route path="bbq" component={MyBBQ} />
+                </Route>
+        </Router>;
+    ReactDOM.render(routes, root);
+    
 };
