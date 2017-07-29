@@ -4,6 +4,9 @@
   "description": "Proof of concept for React dev workflow in Visual Studio",
   "main": "app.js",
   "dependencies": {
+    "@types/react": "^15.0.16",
+    "@types/react-datagrid": "^1.2.30",
+    "@types/react-dom": "^0.14.23",
     "babel": "^6.3.26",
     "css-loader": "^0.23.1",
     "react": "^0.14.7",
@@ -12,7 +15,7 @@
     "react-router": "^2.0.0",
     "style-loader": "^0.13.0",
     "stylus-loader": "^1.5.1",
-    "typescript": "^1.7.5"
+    "typescript": "^2.2.1"
   },
   "devDependencies": {
     "babel-core": "^6.4.5",

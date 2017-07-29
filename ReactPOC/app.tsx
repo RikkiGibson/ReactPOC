@@ -1,4 +1,6 @@
-﻿import "es5-shim";
+﻿/// <reference types="react-datagrid" />
+
+import "es5-shim";
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { testData, BusStop } from "./testData";
@@ -58,5 +60,5 @@ window.onload = () => {
                 </Route>
         </Router>;
     ReactDOM.render(routes, root);
-    
+
 };
